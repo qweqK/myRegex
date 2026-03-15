@@ -12,6 +12,11 @@ int DoubleStack::getPrior(char c) {
 }
 
 
+void DoubleStack::makeEpsilonNode() {
+    nodeStack.push(std::make_unique<Node>('$', true, std::set<int>{counterPos}, std::set<int>{counterPos}));
+    alphabetMap.insert({counterPos++, '$'});
+}
+
 void DoubleStack::makeOper(char c) {
     if (c =='|') makeOrNode();
     else if (c =='.') makeConNode();
@@ -26,6 +31,7 @@ void DoubleStack::makeAnode(char c) {
 }
 
 void DoubleStack::makePlusNode() {
+    if (nodeStack.empty()) throw std::invalid_argument("oper prob");
     std::unique_ptr<Node> next = std::move(nodeStack.top());
     nodeStack.pop();
     nodeStack.pop();
@@ -42,6 +48,7 @@ void DoubleStack::makePlusNode() {
 
 
 void DoubleStack::makeConNode() {
+    if (nodeStack.size()<2) throw std::invalid_argument("oper prob");
     std::unique_ptr<Node> right = std::move(nodeStack.top());
     nodeStack.pop();
     std::unique_ptr<Node> left = std::move(nodeStack.top());
@@ -68,6 +75,7 @@ void DoubleStack::makeConNode() {
 
 
 void DoubleStack::makeOrNode() {
+    if (nodeStack.size()<2) throw std::invalid_argument("oper prob");
     std::unique_ptr<Node> right = std::move(nodeStack.top());
     nodeStack.pop();
     std::unique_ptr<Node> left = std::move(nodeStack.top());
@@ -83,6 +91,7 @@ void DoubleStack::makeOrNode() {
 }
 
 void DoubleStack::makeStarNode() {
+    if (nodeStack.empty()) throw std::invalid_argument("oper prob");
     std::unique_ptr<Node> next = std::move(nodeStack.top());
     nodeStack.pop();
     std::set<int> lastpos;
@@ -99,21 +108,41 @@ void DoubleStack::makeStarNode() {
 
 
 void DoubleStack::pars(const std::string &input) {
-    for (char c : input) {
-        if(isOperand(c)) {
-            makeAnode(c);
+    for (auto c = input.begin(); c != input.end(); c++) {
+        if(isOperand(*c)) {
+            makeAnode(*c);
         }
-        else if (isOperator(c)) {
-            while (!stackOptions.empty() && isOperator(stackOptions.top())&& getPrior(stackOptions.top()) >= getPrior(c)) {
+        else if (*c == '%') makeAnode(*(++c));
+        else if (*c == '[') {
+            c++;
+            std::string tmp;
+            while (c != input.end() && *c != ']') {
+                tmp.push_back(*(c++));
+            }
+            if (c == input.end()) throw std::invalid_argument("problema []");
+            makeSymbDiap(tmp);
+        }
+        // else if (*c == '{') {
+        //     std::string tmp;
+        //     while (c != input.end() && *c != '}') {
+        //         tmp.push_back(*c);
+        //     }
+        //     if (c == input.end()) throw std::invalid_argument("problema {}");
+        //     makeRepeatDiap(tmp);
+        //
+        // }
+
+        else if (isOperator(*c)) {
+            while (!stackOptions.empty() && isOperator(stackOptions.top())&& getPrior(stackOptions.top()) >= getPrior(*c)) {
                 makeOper(stackOptions.top());
                 stackOptions.pop();
             }
-            stackOptions.push(c);
+            stackOptions.push(*c);
         }
-        else if (c== '(') {
+        else if (*c== '(') {
             stackOptions.push('(');
         }
-        else if (c== ')') {
+        else if (*c== ')') {
             while (!stackOptions.empty() && stackOptions.top() != '(') {
                 makeOper(stackOptions.top());
                 stackOptions.pop();
@@ -127,7 +156,7 @@ void DoubleStack::pars(const std::string &input) {
         stackOptions.pop();
     }
     if (!stackOptions.empty() && stackOptions.top() == '(') throw std::invalid_argument("skobka problema");
-
+    t.root = std::move(nodeStack.top());
 }
 
 void DoubleStack::traversal(const std::unique_ptr<Node>& node) {
@@ -144,7 +173,7 @@ void DoubleStack::traversal(const std::unique_ptr<Node>& node) {
 }
 
 bool DoubleStack::isOperand(char c) {
-    if (isOperator(c) || c == '(' || c==')' ) return false;
+    if (isOperator(c) || c == '(' || c==')' || c== '%'|| c== '[' || c== ']' || c=='{'|| c=='}') return false;
     else return true;
 }
 
@@ -163,6 +192,69 @@ void DoubleStack::printFollow() {
     }
 }
 
+void DoubleStack::makeRepeatDiap(std::string &str) {
+    if (str.empty()) throw std::invalid_argument("problema {}");
+    size_t pos = str.find_first_of(',');
+    int n1=0;
+    int n2;
+    if (pos == !std::string::npos) {
+        std::string sn1 = str.substr(0, pos);
+        std::string sn2 = str.substr(pos+1, str.size());
+        if (!sn1.empty()) n1 = std::stoi(sn1);
+        if (!sn2.empty()) n2 = std::stoi(sn2);
+        std::unique_ptr<Node> a = std::move(nodeStack.top());
+        nodeStack.pop();
+        else
+            for (int i = 0; i<n1;i++)
+        n2 = std::stoi(sn2);
+        if (n2<n1) throw std::invalid_argument("problema {}");
+
+
+
+    }
+    else {
+        throw std::invalid_argument("problema {}");
+    }
+}
+
+
+
+
+
+void DoubleStack::makeSymbDiap(std::string &str) {
+   if (str.empty()) return;
+    bool firstNodeCreat = false;
+    for (auto it = str.begin(); it != str.end(); it++) {
+        if (std::next(it) != str.end() && *std::next(it) == '-' && std::next(it,2) != str.end()) {
+            char c1= *it;
+            char c2= *std::next(it,2);
+            if ( c1> c2) throw std::invalid_argument("problema [c1>c2]");
+           for (int i=c1; i<=c2; i++) {
+               makeAnode(i);
+               if (firstNodeCreat) {
+                   makeOrNode();
+               }
+               firstNodeCreat = true;
+           }
+            std::advance(it,2);
+        }
+
+        else {
+            makeAnode(*it);
+            if (firstNodeCreat) {
+                makeOrNode();
+            }
+            firstNodeCreat = true;
+        }
+    }
+
+}
+
+
+
+
+
+
 
 void DoubleStack::printAlphabet() {
     for (char c : alphabet) {
@@ -175,5 +267,3 @@ void DoubleStack::printAlphabet() {
 void DoubleStack::printAlphabetMap() {
     for (auto &s : alphabetMap) {std::cout << s.first << "-"<< s.second <<std::endl;}
 }
-
-

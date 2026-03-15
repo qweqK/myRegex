@@ -14,6 +14,7 @@ class DoubleStack {
     int getPrior(char c);
     std::set<char> alphabet;
     std::unordered_map<int, char> alphabetMap;
+    Tree t;
     //конструкт
     DoubleStack() : counterPos(1) {};
     //парс в дерево сорт стайстион
@@ -27,6 +28,10 @@ class DoubleStack {
     void makeConNode();
     void makeStarNode();
     void makePlusNode();
+    void makeEpsilonNode();
+
+    void makeRepeatDiap(std::string &str);
+    void makeSymbDiap(std::string &str);
 
     //проверки 3000
     bool isOperand(char c);
@@ -38,3 +43,7 @@ class DoubleStack {
     void printAlphabet();
     void printAlphabetMap();
 };
+
+
+
+
