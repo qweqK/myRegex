@@ -133,10 +133,11 @@ void DoubleStack::pars(const std::string &input) {
         // }
 
         else if (isOperator(*c)) {
-            while (!stackOptions.empty() && isOperator(stackOptions.top())&& getPrior(stackOptions.top()) >= getPrior(*c)) {
+            while (!stackOptions.empty() && isOperator(stackOptions.top())&&getPrior(stackOptions.top()) >= getPrior(*c)) {
                 makeOper(stackOptions.top());
                 stackOptions.pop();
             }
+
             stackOptions.push(*c);
         }
         else if (*c== '(') {
@@ -192,30 +193,30 @@ void DoubleStack::printFollow() {
     }
 }
 
-void DoubleStack::makeRepeatDiap(std::string &str) {
-    if (str.empty()) throw std::invalid_argument("problema {}");
-    size_t pos = str.find_first_of(',');
-    int n1=0;
-    int n2;
-    if (pos == !std::string::npos) {
-        std::string sn1 = str.substr(0, pos);
-        std::string sn2 = str.substr(pos+1, str.size());
-        if (!sn1.empty()) n1 = std::stoi(sn1);
-        if (!sn2.empty()) n2 = std::stoi(sn2);
-        std::unique_ptr<Node> a = std::move(nodeStack.top());
-        nodeStack.pop();
-        else
-            for (int i = 0; i<n1;i++)
-        n2 = std::stoi(sn2);
-        if (n2<n1) throw std::invalid_argument("problema {}");
-
-
-
-    }
-    else {
-        throw std::invalid_argument("problema {}");
-    }
-}
+// void DoubleStack::makeRepeatDiap(std::string &str) {
+//     if (str.empty()) throw std::invalid_argument("problema {}");
+//     size_t pos = str.find_first_of(',');
+//     int n1=0;
+//     int n2;
+//     if (pos == !std::string::npos) {
+//         std::string sn1 = str.substr(0, pos);
+//         std::string sn2 = str.substr(pos+1, str.size());
+//         if (!sn1.empty()) n1 = std::stoi(sn1);
+//         if (!sn2.empty()) n2 = std::stoi(sn2);
+//         std::unique_ptr<Node> a = std::move(nodeStack.top());
+//         nodeStack.pop();
+//         else
+//             for (int i = 0; i<n1;i++)
+//         n2 = std::stoi(sn2);
+//         if (n2<n1) throw std::invalid_argument("problema {}");
+//
+//
+//
+//     }
+//     else {
+//         throw std::invalid_argument("problema {}");
+//     }
+// }
 
 
 

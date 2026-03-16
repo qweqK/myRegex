@@ -1,20 +1,26 @@
 #pragma once
 #include <memory>
+#include <queue>
+
 #include "../tree/treeContructor.h"
 //#include ""
-class DFAConstructor {
-    DoubleStack d;
-    public:
-    DFAConstructor();
-    void constructTree(const std::string &str);
-    void buildDFA();
+
+class State {
+public:
+    std::string name;
+    bool end;
 
 };
 
-
-
-class State {
+class DFAConstructor {
+    DoubleStack d;
     public:
-    std::string name;
+    void constructTree(const std::string &str);
+    void buildDFA();
+    std::unordered_map<std::pair<State, char>, State> table;
+    std::queue<State> states;
+    std::set<State> processedStates;
+
+
 
 };
