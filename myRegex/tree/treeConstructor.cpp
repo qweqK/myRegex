@@ -34,7 +34,6 @@ void DoubleStack::makePlusNode() {
     if (nodeStack.empty()) throw std::invalid_argument("oper prob");
     std::unique_ptr<Node> next = std::move(nodeStack.top());
     nodeStack.pop();
-    nodeStack.pop();
     std::set<int> lastpos;
     std::set<int> firstpos;
     lastpos.insert(next->_lastpos.begin(), next->_lastpos.end());
@@ -158,6 +157,7 @@ void DoubleStack::pars(const std::string &input) {
     }
     if (!stackOptions.empty() && stackOptions.top() == '(') throw std::invalid_argument("skobka problema");
     t.root = std::move(nodeStack.top());
+    alphabet.erase('#');
 }
 
 void DoubleStack::traversal(const std::unique_ptr<Node>& node) {
