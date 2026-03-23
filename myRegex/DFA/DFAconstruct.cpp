@@ -57,7 +57,7 @@ void DFAConstructor::printDFA() {
     std::cout<<"DFA construct"<<std::endl;
     for (auto & s : this->tableDFA) {
         std::cout << s.first.first << ": " << s.first.second << "-> "<< s.second;
-        if (fpTS.contains(Dstates[s.first.first])) {std::cout << " true"<< std::endl;}
+        if (acceptState.contains(s.first.first)) {std::cout << " true"<< std::endl;}
         else {std::cout << " false"<<std::endl;}
 
     }
@@ -78,19 +78,89 @@ void DFAConstructor::prinStates() {
 }
 
 
-
-void DFAConstructor::minimizationDFA() {
-    std::map<std::set<int>, int> curPartition;
-    std::map<std::set<int>, int> newPartition;
-    std::set<int> dontAccept;
-    std::set_difference(AllStates.begin(), AllStates.end(), acceptState.begin(), acceptState.end(), std::inserter(dontAccept, dontAccept.begin()) );
-    curPartition.insert({dontAccept,0} );
-    curPartition.insert({acceptState, 1});
-    while (true) {
-        for (auto& p: curPartition) {
-
+void DFAMinimization::minimization() {
+    std::set<int> notAcept;
+    std::set_difference(AllStates.begin(), AllStates.end(), AcceptState.begin(), AcceptState.end(), std::inserter(notAcept, notAcept.end()));
+    partition.push_back(AcceptState);
+    partition.push_back(notAcept);
+    size_t lastSize=partition.size();
+     while (true) {
+         for (auto & p : partition) {
+            divisionGroup(p);
         }
+        if (newPartitions.size() == partition.size()) break;
+        partition = std::move(newPartitions);
+         newPartitions.clear();
+    }
+    std::vector<int> groupf;
+
+    int GI=0;
+    for (auto &g : partition) {
+        int s = *g.begin();
+        groupf.push_back(s);
+        for (auto p : g) {
+            stateToGroup[p]= GI;
+        }
+        if (AcceptState.contains(s)) {
+            newAcceptState.insert(GI);
+        }
+        GI++;
+    }
+
+    for (int i=0 ; i < GI; i++) {
+        int s = groupf[i];
+        for (auto a : alphabet) {
+            newTableDFA[{i,a}] = stateToGroup[tableDFA[{s,a}]];
+        }
+    }
+
+
+
+    for (auto & s :  newTableDFA) {
+        std::cout << s.first.first << ": " << s.first.second << "-> "<< s.second;
+        if (newAcceptState.contains(s.first.first)) {std::cout << " true"<< std::endl;}
+        else {std::cout << " false"<<std::endl;}
+    }
+
+
+
+
+    for (int i = 0; i < partition.size(); i++) {
+        std::cout << i << " {";
+        for (auto g: partition[i]) std::cout << g << ",";
+        std::cout << "}" << std::endl;
+    }
+
+}
+
+void DFAMinimization::divisionGroup(std::set<int> &G) {
+    std::map<int, std::vector<int>> posToGroup;
+    std::map<std::vector<int>, std::set<int>> f;
+    for (auto a: alphabet) {
+        for (auto p: G) {
+            posToGroup[p].push_back(getGroupIndex(p, a));
+        }
+    }
+    // for (auto p: posToGroup) {
+    //     std::cout << p.first << " [";
+    //     for (auto a: p.second) {
+    //         std::cout << a << ",";
+    //     }
+    //     std::cout << "]" << std::endl;
+
+    //}
+    for (auto &p: posToGroup) {
+        f[p.second].insert(p.first);
+    }
+    for (auto &a: f) {
+        newPartitions.push_back(a.second);
     }
 }
 
 
+int DFAMinimization::getGroupIndex(int pos, char a) {
+    for (int i = 0; i < partition.size(); i++) {
+        if (partition[i].contains(tableDFA[{pos, a}])) {return i;}
+    }
+    throw std::invalid_argument("Group index out of range");
+}

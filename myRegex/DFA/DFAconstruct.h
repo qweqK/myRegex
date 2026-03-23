@@ -39,6 +39,9 @@
 
 class DFAConstructor {
     int counter;
+    std::map<std::set<int>, int> fpTS;
+    std::set <int> acceptState;
+
     public:
     std::unique_ptr<DoubleStack> d;
     void constructTree(const std::string &str);
@@ -51,15 +54,45 @@ class DFAConstructor {
     std::vector<std::set<int>> Dstates;
     //std::vector<std::unique_ptr<NormalState>> NormalStates;
     std::set<int> AllStates;
-    DFAConstructor(std::unique_ptr<DoubleStack> ds) :d(std::move(ds)), counter(0), Dstates(),tableDFA() {
-    }
-
-    std::map<std::set<int>, int> fpTS;
-    std::set <int> acceptState;
+    DFAConstructor(std::unique_ptr<DoubleStack> ds) :d(std::move(ds)), counter(0), Dstates(),tableDFA() {}
     void prinStates();
     void printDFA();
 
 
-    void minimizationDFA();
+    std::map<std::pair<int, char>, int> &&getTable() { return std::move(tableDFA); }
+    std::set<int> &&getAcceptState() { return std::move(acceptState); }
+    std::set<int> &&getAllStates() { return std::move(AllStates); }
 
 };
+
+class DFAMinimization {
+    std::set<int> AcceptState;
+    std::set<int> AllStates;
+    std::map<std::pair<int, char>, int> tableDFA;
+    std::set<char> alphabet;
+    std::vector<std::set<int>> partition;
+    std::vector<std::set<int>> newPartitions;
+    std::map<int, int> stateToGroup;
+
+    std::map<std::pair<int, char>, int> newTableDFA;
+    std::set<int> newAcceptState;
+    std::set<int> newAllStates;
+    int startState = 0;
+
+
+    public:
+    DFAMinimization(std::set<int> &&AC, std::set<int> && AS,  std::map<std::pair<int, char>, int> &&transition, std::set<char> alphabe) : AcceptState(std::move(AC)), AllStates(std::move(AS)), tableDFA(std::move(transition)), alphabet(std::move(alphabe)) {}
+    void minimization();
+    void divisionGroup(std::set<int> &G);
+    int getGroupIndex(int pos, char a);
+    int getNewStart() {return stateToGroup[startState];}
+    std::set<int> &&getAcceptState() { return std::move(AcceptState); }
+    std::map<std::pair<int, char>, int> &&getTable() { return std::move(newTableDFA);}
+    std::set<char> &&getAlphabet() { return std::move(alphabet);}
+
+
+
+
+};
+
+

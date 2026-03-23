@@ -42,6 +42,8 @@ class DoubleStack {
     void printFollow();
     void printAlphabet();
     void printAlphabetMap();
+
+    std::set<char> getAlphabet() {return alphabet;};
 };
 
 
