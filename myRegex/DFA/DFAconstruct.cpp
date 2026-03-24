@@ -116,20 +116,20 @@ void DFAMinimization::minimization() {
 
 
 
-    for (auto & s :  newTableDFA) {
-        std::cout << s.first.first << ": " << s.first.second << "-> "<< s.second;
-        if (newAcceptState.contains(s.first.first)) {std::cout << " true"<< std::endl;}
-        else {std::cout << " false"<<std::endl;}
-    }
+    // for (auto & s :  newTableDFA) {
+    //     std::cout << s.first.first << ": " << s.first.second << "-> "<< s.second;
+    //     if (newAcceptState.contains(s.first.first)) {std::cout << " true"<< std::endl;}
+    //     else {std::cout << " false"<<std::endl;}
+    // }
 
 
 
 
-    for (int i = 0; i < partition.size(); i++) {
-        std::cout << i << " {";
-        for (auto g: partition[i]) std::cout << g << ",";
-        std::cout << "}" << std::endl;
-    }
+    // for (int i = 0; i < partition.size(); i++) {
+    //     std::cout << i << " {";
+    //     for (auto g: partition[i]) std::cout << g << ",";
+    //     std::cout << "}" << std::endl;
+    // }
 
 }
 

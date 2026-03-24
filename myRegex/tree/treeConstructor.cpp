@@ -197,7 +197,7 @@ void DoubleStack::printFollow() {
 //     if (str.empty()) throw std::invalid_argument("problema {}");
 //     size_t pos = str.find_first_of(',');
 //     int n1=0;
-//     int n2;
+//     int n2=0;
 //     if (pos == !std::string::npos) {
 //         std::string sn1 = str.substr(0, pos);
 //         std::string sn2 = str.substr(pos+1, str.size());

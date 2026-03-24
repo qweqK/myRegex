@@ -86,7 +86,7 @@ class DFAMinimization {
     void divisionGroup(std::set<int> &G);
     int getGroupIndex(int pos, char a);
     int getNewStart() {return stateToGroup[startState];}
-    std::set<int> &&getAcceptState() { return std::move(AcceptState); }
+    std::set<int> &&getAcceptState() { return std::move(newAcceptState); }
     std::map<std::pair<int, char>, int> &&getTable() { return std::move(newTableDFA);}
     std::set<char> &&getAlphabet() { return std::move(alphabet);}
 
