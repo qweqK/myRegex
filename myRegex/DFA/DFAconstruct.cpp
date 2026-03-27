@@ -2,7 +2,7 @@
 
 #include <iostream>
 
-void DFAConstructor::constructTree(const std::string &str) {
+void DFAConstructor::constructTree(std::string &str) {
     d->pars(str);
 }
 
@@ -116,20 +116,20 @@ void DFAMinimization::minimization() {
 
 
 
-    // for (auto & s :  newTableDFA) {
-    //     std::cout << s.first.first << ": " << s.first.second << "-> "<< s.second;
-    //     if (newAcceptState.contains(s.first.first)) {std::cout << " true"<< std::endl;}
-    //     else {std::cout << " false"<<std::endl;}
-    // }
+    for (auto & s :  newTableDFA) {
+        std::cout << s.first.first << ": " << s.first.second << "-> "<< s.second;
+        if (newAcceptState.contains(s.first.first)) {std::cout << " true"<< std::endl;}
+        else {std::cout << " false"<<std::endl;}
+    }
 
 
 
 
-    // for (int i = 0; i < partition.size(); i++) {
-    //     std::cout << i << " {";
-    //     for (auto g: partition[i]) std::cout << g << ",";
-    //     std::cout << "}" << std::endl;
-    // }
+    for (int i = 0; i < newPartitions.size(); i++) {
+        std::cout << i << " {";
+        for (auto g: partition[i]) std::cout << g << ",";
+        std::cout << "}" << std::endl;
+    }
 
 }
 
@@ -141,14 +141,14 @@ void DFAMinimization::divisionGroup(std::set<int> &G) {
             posToGroup[p].push_back(getGroupIndex(p, a));
         }
     }
-    // for (auto p: posToGroup) {
-    //     std::cout << p.first << " [";
-    //     for (auto a: p.second) {
-    //         std::cout << a << ",";
-    //     }
-    //     std::cout << "]" << std::endl;
-
-    //}
+    //  for (auto p: posToGroup) {
+    //      std::cout << p.first << " [";
+    //      for (auto a: p.second) {
+    //          std::cout << a << ",";
+    //      }
+    //      std::cout << "]" << std::endl;
+    //
+    // }
     for (auto &p: posToGroup) {
         f[p.second].insert(p.first);
     }

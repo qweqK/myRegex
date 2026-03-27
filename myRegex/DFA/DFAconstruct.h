@@ -44,7 +44,7 @@ class DFAConstructor {
 
     public:
     std::unique_ptr<DoubleStack> d;
-    void constructTree(const std::string &str);
+    void constructTree(std::string &str);
     void buildDFA(std::string str);
     //State buildState(std::set<int> &t);
     //std::unique_ptr<NormalState> buildNormalState();

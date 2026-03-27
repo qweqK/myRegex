@@ -23,9 +23,15 @@ bool DFA::match(const std::string &str) {
 
 std::string DFA::kPath()  {
     std::vector<std::string> resM;
+    resM.reserve(acceptState.size());
     std::string res;
+    std::set<int> alllState;
+    for (auto &t : transitionMap) {
+        if (!alllState.contains(t.first.first)) alllState.insert(t.first.first);
+    }
+
     for (auto a : acceptState) {
-        resM.push_back(recursiveStep(startState, a, allState.size()));
+        resM.push_back(recursiveStep(startState+1, a+1, alllState.size()));
     }
     for (auto &s: resM) {
         res.append(s);
@@ -35,11 +41,56 @@ std::string DFA::kPath()  {
     return res;
 }
 
+
+
 std::string DFA::recursiveStep(int i, int j, int k) {
-    if (k==0) return "";
     if (kPathsCalc.contains({i,j,k})) return kPathsCalc[{i,j,k}];
+    if (k==0) {
+        std::set<char> aora;
+        std::string res = "";
+        for (auto a : alphabet) {
+            if (transitionMap[{i-1, a}]==j-1) {
+                aora.insert(a);
+            }
+        }
+        for (auto it = aora.begin(); it != aora.end(); ++it) {
+            res+=*it;
+            if (std::next(it)!=aora.end()) { res.push_back('|');}
+        }
+        if (i == j) {
+            if (res.empty()) res = "$";
+            else res = res + "|$";
+        }
+        if (res.size() > 1) res = "(" + res + ")";
+        kPathsCalc[{i,j,k}] = res;
+        return res;
+    }
 
-    std::string res = "(" + recursiveStep(i, j, k-1) + ")|" (" + recursiveStep(i, k, k-1) + "."+";
 
+    std::string rS1=recursiveStep(i, j, k-1);
+    std::string rS2 = recursiveStep(i, k, k-1);
+    std::string rS3= recursiveStep(k, k, k-1);
+    std::string rS4 = recursiveStep(k, j, k-1);
+    std::string res;
+    std::string secondPart;
+    if (!rS2.empty() && !rS4.empty()) {
+        secondPart="(" + rS2 + ")";
+        if (!rS3.empty() || rS3 != "$") {
+            secondPart.append("(" + rS3 + ")*");
+        }
+        secondPart.append("("+rS4+")");
+    }
+    if (!rS1.empty() && !secondPart.empty()) {
+        res= "(" + rS1 + "|" + secondPart + ")";
+    }
+    else if (!secondPart.empty()) {
+        res = secondPart;
+    }
+    else if (!rS1.empty()) {
+        res = rS1;
+    }
+    else res = "";
 
+    kPathsCalc[{i,j,k}] = res;
+    return res;
 }

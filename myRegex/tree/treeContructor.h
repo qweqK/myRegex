@@ -18,7 +18,7 @@ class DoubleStack {
     //конструкт
     DoubleStack() : counterPos(1) {};
     //парс в дерево сорт стайстион
-    void pars(const std::string &input);
+    void pars( std::string &input);
 
 
     //узло-создатели 3000
@@ -36,6 +36,7 @@ class DoubleStack {
     //проверки 3000
     bool isOperand(char c);
     bool isOperator(char c);
+    bool isForCon(char c);
 
     //отладка 3000
     void traversal(const std::unique_ptr<Node>& node);

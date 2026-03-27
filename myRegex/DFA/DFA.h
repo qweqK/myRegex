@@ -6,7 +6,7 @@
 
 class DFA {
     std::map<std::pair<int, char>,int> transitionMap;
-    std::set<int> acceptState;
+    std::set<int>   acceptState;
     int startState;
     std::set<char> alphabet;
     std::set<int> allState;
@@ -16,6 +16,7 @@ class DFA {
     bool match(const std::string &str);
     std::string kPath();
     std::string recursiveStep(int i, int j, int k);
+
 
 
 
