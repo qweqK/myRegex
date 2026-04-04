@@ -16,11 +16,11 @@ public:
 
 
 
-    Node(char data, bool nullable, std::set<int> firstpos, std::set<int> lastpos) :
-    _data(data), _nullable(nullable),
+    Node(char data, bool nullable,NodeType t ,std::set<int> firstpos, std::set<int> lastpos) :
+    _data(data), _nullable(nullable), _nodeType(t),
     _firstpos(std::move(firstpos)), _lastpos(std::move(lastpos)) {}
-    Node(char data, bool nullable, std::set<int> firstpos, std::set<int> lastpos, std::unique_ptr<Node> left, std::unique_ptr<Node> right) :
-    _data(data), _nullable(nullable),
+    Node(char data, bool nullable, NodeType t,std::set<int> firstpos, std::set<int> lastpos, std::unique_ptr<Node> left, std::unique_ptr<Node> right) :
+    _data(data), _nullable(nullable), _nodeType(t),
     _firstpos(std::move(firstpos)),_lastpos(std::move(lastpos)),
     _left(std::move(left)), _right(std::move(right)) {}
 

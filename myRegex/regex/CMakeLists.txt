@@ -1,0 +1,1 @@
+add_library(mRegex STATIC mregex.h mregex.cpp)

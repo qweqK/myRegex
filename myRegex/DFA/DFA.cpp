@@ -2,26 +2,32 @@
 
 #include <iostream>
 #include <ostream>
+#include  <array>
 
 
 bool DFA::match(const std::string &str) {
- int currentState=startState;
-    for (auto a : str) {
-        // std::cout << currentState << " ";
-        if (alphabet.contains(a)) currentState = transitionMap[{currentState, a}];
-        else {currentState = startState; return false;}
-        // std::cout << a << " : "<<currentState << std::endl;
+    if (!lookAheadDfa) {
+        int currentState=startState;
+        for (auto a : str) {
+            if (alphabet.contains(a)) currentState = transitionMap[{currentState, a}];
+            else { return false;}
+        }
 
+        return acceptState.contains(currentState);
+    }
+    else {
+        int currentState=startState;
+        for (int i=0; i<str.length(); i++) {
+            if (alphabet.contains(str[i])) currentState = transitionMap[{currentState, str[i]}];
+            else {return false;}
+        }
     }
 
-    // for (auto s : acceptState) {
-    //     std::cout << s << " ";
-    // }
-    return acceptState.contains(currentState);
 }
 
 
 std::string DFA::kPath()  {
+   // if (!lookAheadDfa) throw std::logic_error("DFA with lookahead = bad DFA");
     std::vector<std::string> resM;
     resM.reserve(acceptState.size());
     std::string res;
@@ -93,4 +99,39 @@ std::string DFA::recursiveStep(int i, int j, int k) {
 
     kPathsCalc[{i,j,k}] = res;
     return res;
+}
+
+
+void DFA::printDFA() {
+    for (auto & s :  transitionMap) {
+        std::cout << s.first.first << ": " << s.first.second << "-> "<< s.second;
+        if (acceptState.contains(s.first.first)) {std::cout << " true"<< std::endl;}
+        else {std::cout << " false"<<std::endl;}
+    }
+    if (lookAheadDfa){ std::cout << "lookaheadDFA: " << std::endl; lookAheadDfa->printDFA();}
+}
+
+
+bool DFA::isReachable() {
+    std::set<int> visited;
+    return DFS(startState, visited);
+}
+
+bool DFA::DFS(int i, std::set<int> &visited) {
+    if (acceptState.contains(i)){ return  true;}
+    visited.insert(i);
+        for (auto a : alphabet) {
+            if (transitionMap.contains({i,a})) {
+                int next = transitionMap[{i,a}];
+                if (!visited.contains(next)) {
+                    if (DFS(next, visited)) return true;
+                }
+            }
+        }
+
+    return false;
+}
+
+std::string DFA::getInvers(std::string str) {
+    for ()
 }

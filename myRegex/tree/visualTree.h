@@ -1,9 +1,5 @@
-//
-// Created by user on 26.03.2026.
-//
+#pragma once
 
-#ifndef TEST_VTREE_H
-#define TEST_VTREE_H
 #include <iostream>
 #include <fstream>
 #include <string>
@@ -100,4 +96,3 @@ inline void saveGraph(const Node* root, const std::string& filename) {
     file.close();
     std::cout << "Successfully saved DOT file: " << filename << std::endl;
 }
-#endif //TEST_VTREE_H

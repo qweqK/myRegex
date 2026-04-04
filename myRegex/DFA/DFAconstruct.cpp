@@ -1,6 +1,7 @@
 #include "DFAconstruct.h"
 
 #include <iostream>
+#include <fstream>
 
 void DFAConstructor::constructTree(std::string &str) {
     d->pars(str);
@@ -11,10 +12,13 @@ void DFAConstructor::buildDFA(std::string str) {
     str.append(".#");
     d->pars(str);
     int dontMarkIndex=0;
+
     Dstates.push_back(d->t.root->_firstpos);
    // NormalStates.push_back(buildNormalState());
     AllStates.insert(dontMarkIndex);
     fpTS[d->t.root->_firstpos] = 0;
+    if (d->t.root.get()->_firstpos.contains(d->counterPos-1)) acceptState.insert(fpTS[d->t.root.get()->_firstpos]);
+
     while (dontMarkIndex < Dstates.size()) {
        int currentIndex=dontMarkIndex++;
         for (auto a : d->alphabet) {
@@ -28,9 +32,10 @@ void DFAConstructor::buildDFA(std::string str) {
                 AllStates.insert(fpTS[uni]);
             }
             tableDFA[std::pair<int, char>{fpTS[set], a}] = fpTS[uni];
-
         }
     }
+
+    grapGenerate(tableDFA, acceptState , "notMinDFA.dot" );
 }
 
 // State DFAConstructor::buildState(std::set<int> &t) {
@@ -131,6 +136,8 @@ void DFAMinimization::minimization() {
         std::cout << "}" << std::endl;
     }
 
+    grapGenerate(newTableDFA, newAcceptState , "MinDFA.dot" );
+
 }
 
 void DFAMinimization::divisionGroup(std::set<int> &G) {
@@ -141,20 +148,16 @@ void DFAMinimization::divisionGroup(std::set<int> &G) {
             posToGroup[p].push_back(getGroupIndex(p, a));
         }
     }
-    //  for (auto p: posToGroup) {
-    //      std::cout << p.first << " [";
-    //      for (auto a: p.second) {
-    //          std::cout << a << ",";
-    //      }
-    //      std::cout << "]" << std::endl;
-    //
-    // }
+
     for (auto &p: posToGroup) {
         f[p.second].insert(p.first);
     }
+
+
     for (auto &a: f) {
         newPartitions.push_back(a.second);
     }
+
 }
 
 
@@ -163,4 +166,32 @@ int DFAMinimization::getGroupIndex(int pos, char a) {
         if (partition[i].contains(tableDFA[{pos, a}])) {return i;}
     }
     throw std::invalid_argument("Group index out of range");
+}
+
+
+void grapGenerate(const std::map<std::pair<int, char>, int> &transition, const std::set<int> & acceptState,const std::string &outS) {
+    std::ofstream ss(outS);
+
+    ss << "digraph automat {\n";
+    ss << "    rankdir=LR;\n";
+    ss << "    size=\"8,5\";\n";
+
+    if (!acceptState.empty()) {
+        ss << "    node [shape = doublecircle];\n";
+        for (int p : acceptState) {
+            ss << "    " << p << ";\n";
+        }
+    }
+
+    ss << "    node [shape = circle];\n";
+
+    for (const auto & p : transition) {
+        int cs = p.first.first;
+        char c = p.first.second;
+
+        ss << "    " << cs << " -> " << p.second <<
+            " [label = \"" << c << "\"];\n";
+    }
+
+    ss << "}\n";
 }

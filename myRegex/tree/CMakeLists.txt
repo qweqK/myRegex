@@ -1,0 +1,1 @@
+add_library(tree STATIC treeContructor.h treeConstructor.cpp tree.h visualTree.h)

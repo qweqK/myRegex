@@ -2,6 +2,7 @@
 #include <iostream>
 #include <memory>
 #include <queue>
+#include <sstream>
 
 #include "../tree/treeContructor.h"
 //#include ""
@@ -95,4 +96,6 @@ class DFAMinimization {
 
 };
 
+
+void grapGenerate(const std::map<std::pair<int, char>, int> &transition, const std::set<int> & acceptState,const std::string &outS);
 

@@ -9,6 +9,7 @@ class DoubleStack {
     public:
     std::stack<char> stackOptions;
     std::stack<std::unique_ptr<Node>> nodeStack;
+    std::stack<std::unique_ptr<Node>> helpNodeStack;
     int counterPos;
     std::map<int, std::set<int>> followPos;
     int getPrior(char c);
@@ -45,6 +46,13 @@ class DoubleStack {
     void printAlphabetMap();
 
     std::set<char> getAlphabet() {return alphabet;};
+
+
+
+    void chooseMakeNode(char, Node::NodeType);
+    void traversClone(const std::unique_ptr<Node>& node);
+    void takeSmartCopyNode(const std::unique_ptr<Node>& node);
+
 };
 
 

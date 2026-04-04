@@ -1,0 +1,1 @@
+add_library(DFA STATIC DFA.cpp DFA.h DFAconstruct.h DFAconstruct.cpp MultiDFA.h)
