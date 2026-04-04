@@ -26,6 +26,7 @@ class DFA {
     bool isReachable();
     bool DFS(int i,std::set<int> &visited);
     std::string getInvers(std::string str);
+    std::string revRec(std::string);
 
 };
 

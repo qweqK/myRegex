@@ -11,9 +11,9 @@ class mregex {
         std::unique_ptr<DFA> dLookahead = nullptr;
         std::pair<std::string, std::string> strs= checkStr(re);
 
-
         DFAConstructor dc1(std::make_unique<DoubleStack>());
         dc1.buildDFA(strs.first);
+        saveGraph(dc1.d->t.root.get(), "tree.dot");
         // dc1.d->traversal(dc1.d->t.root);
         // dc1.d->printFollow();
         // dc1.d->printAlphabet();
@@ -54,5 +54,11 @@ public:
     MultiDFA getMultyAutomat(DFA *other);
     DFA *getDFA() {return dfa.get();}
     bool isEqual(mregex &secRegex);
-    std::unique_ptr<DFA> diffAutomat(mregex &secRegex);
+    mregex diffAutomat(mregex &secRegex);
+    void draw(std::string str);
+
+
+    void recursiveInvTravers(std::unique_ptr<Node> &n);
+    std::string recursiveTraverseToStr(std::unique_ptr<Node> &n);
+    std::string invers(std::string str);
 };

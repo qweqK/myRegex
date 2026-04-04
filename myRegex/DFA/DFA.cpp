@@ -37,6 +37,7 @@ std::string DFA::kPath()  {
     }
 
     for (auto a : acceptState) {
+        std::cout << "popa" <<std::endl;
         resM.push_back(recursiveStep(startState+1, a+1, alllState.size()));
     }
     for (auto &s: resM) {
@@ -132,6 +133,3 @@ bool DFA::DFS(int i, std::set<int> &visited) {
     return false;
 }
 
-std::string DFA::getInvers(std::string str) {
-    for ()
-}

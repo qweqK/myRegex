@@ -33,18 +33,40 @@ int main() {
   // mregex regex2(regex.kPath());
 // mregex regex("([abc]+)( +-[abc]+)*( +[abc]+)* *");
 
-    mregex regex("a{,1}");
+   //mregex regex("([abc]+)( +-[abc]+)*( +[abc]+)* *");
+    mregex regex("abbbc");
+    std::cout << regex.kPath() << std::endl;
+    mregex regex2("a*b");
+    //mregex regex2(regex.kPath());
+    regex.draw("r1.dot");
+    regex2.draw("r2.dot");
+    //mregex regexd = regex.diffAutomat(regex2);
 
- bool f = regex.match("");
-    //bool g = regex2.match("");
- //std::unique_ptr<DFA> d = r1.diffAutomat(r2);
- //grapGenerate(d->getTransitions(), d->getAcceptStates(), "difAf.dot");
- //d->printDFA();
-  if (f == true) std::cout << "true" << std::endl;
-  else std::cout << "false" << std::endl;
+    //bool f = regexd.match("aaba");
+    bool d = regex.match("aaba");
+    bool g = regex2.match("aaba");
 
-   /// if (g == true) std::cout << "true" << std::endl;
-   /// else std::cout << "false" << std::endl;
+
+
+    //regexd.draw("r3.dot");
+
+  //if (f == true) std::cout << "true" << std::endl;
+  //else std::cout << "false" << std::endl;
+
+    if (d == true) std::cout << "true" << std::endl;
+    else std::cout << "false" << std::endl;
+
+    if (g == true) std::cout << "true" << std::endl;
+    else std::cout << "false" << std::endl;
+
+
+    mregex regex3(regex.invers("([abc]+)( +-[abc]+)*( +[abc]+)* *"));
+    bool q = regex3.match("abc abc- acb");
+    regex3.draw("r4.dot");
+    if (q == true) std::cout << "true" << std::endl;
+    else std::cout << "false" << std::endl;
+
+
 }
 
 

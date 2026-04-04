@@ -44,7 +44,7 @@ bool mregex::isEqual(mregex &secRegex) {
          std::set<int> newAcceptStates;
          std::map<std::pair<int, int>, int> mAllState = mDFa.getMAllState();
          for (auto &s : mAllState) {
-             if (dfa->getAcceptStates().contains(s.first.first) && !dfa->getAcceptStates().contains(s.first.second) || !dfa->getAcceptStates().contains(s.first.first) && dfa->getAcceptStates().contains(s.first.second)) {newAcceptStates.insert(s.second);}
+             if ((dfa->getAcceptStates().contains(s.first.first) && !dfa->getAcceptStates().contains(s.first.second)) || (!dfa->getAcceptStates().contains(s.first.first) && dfa->getAcceptStates().contains(s.first.second))) {newAcceptStates.insert(s.second);}
          }
 
          std::unique_ptr<DFA> eqMat = std::make_unique<DFA>(std::move(mDFa.getMTM()), std::move(newAcceptStates), mDFa.getMStart(), dfa->getAlphabet());
@@ -53,7 +53,7 @@ bool mregex::isEqual(mregex &secRegex) {
 }
 
 
-std::unique_ptr<DFA> mregex::diffAutomat(mregex &secRegex) {
+mregex mregex::diffAutomat(mregex &secRegex) {
     if (isLookahead || secRegex.isLookahead) { throw std::invalid_argument("mregex have lookahead"); }
     if (dfa->getAlphabet() != secRegex.getDFA()->getAlphabet()) throw std::invalid_argument("different alphabet");
     MultiDFA mDFa = getMultyAutomat(secRegex.getDFA());
@@ -85,5 +85,37 @@ std::pair<std::string, std::string> mregex::checkStr(std::string &str) {
 
 }
 
+void mregex::draw(std::string str) {
+    grapGenerate(dfa->getTransitions(), dfa->getAcceptStates(), str, dfa->getStartState());
+}
 
 
+
+void mregex::recursiveInvTravers(std::unique_ptr<Node> &n) {
+   if (!n) return;
+         recursiveInvTravers(n->_left);
+         recursiveInvTravers(n->_right);
+         if (n->_nodeType == Node::NodeType::CON) {
+             std::unique_ptr<Node> tmp = std::move(n->_left);
+             n->_left = std::move(n->_right);
+             n->_right = std::move(tmp);
+         }
+}
+
+std::string mregex::recursiveTraverseToStr(std::unique_ptr<Node> &n) {
+         if (!n) return "";
+         else if (n->_nodeType == Node::NodeType::A || n->_nodeType == Node::NodeType::Eps) {return std::string(1, n->_data);}
+         else if (n->_nodeType == Node::NodeType::CON) { return recursiveTraverseToStr(n->_left)  + recursiveTraverseToStr(n->_right); }
+         else if (n -> _nodeType == Node::NodeType::OR) { return "(" + recursiveTraverseToStr(n->_left) + "|" + recursiveTraverseToStr(n->_right) + ")"; }
+         else if (n-> _nodeType == Node::NodeType::STAR) { return "(" + recursiveTraverseToStr(n->_left) + ")*" ; }
+         else if (n-> _nodeType == Node::NodeType::PLUS) { return "(" + recursiveTraverseToStr(n->_left) + ")+" ; }
+         return "";
+
+     }
+
+std::string mregex::invers(std::string str) {
+         DoubleStack d;
+         d.pars(str);
+         recursiveInvTravers(d.t.root);
+         return  recursiveTraverseToStr(d.t.root);
+}

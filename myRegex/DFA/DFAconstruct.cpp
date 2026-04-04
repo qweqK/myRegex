@@ -9,8 +9,9 @@ void DFAConstructor::constructTree(std::string &str) {
 
 
 void DFAConstructor::buildDFA(std::string str) {
-    str.append(".#");
-    d->pars(str);
+   std::string str2 = "(" + str + ")";
+    str2.append(".#");
+    d->pars(str2);
     int dontMarkIndex=0;
 
     Dstates.push_back(d->t.root->_firstpos);
@@ -35,18 +36,8 @@ void DFAConstructor::buildDFA(std::string str) {
         }
     }
 
-    grapGenerate(tableDFA, acceptState , "notMinDFA.dot" );
+    grapGenerate(tableDFA, acceptState , "notMinDFA.dot", 0);
 }
-
-// State DFAConstructor::buildState(std::set<int> &t) {
-//     std::string s=std::to_string(Dstates.size());
-//     return State{std::move(s), t, static_cast<int>(Dstates.size())};
-// }
-
-/*std::unique_ptr<NormalState> DFAConstructor::buildNormalState() {
-    return std::make_unique<NormalState>(Dstates.size()-1, Dstates[Dstates.size() - 1].contains(d->counterPos-1));
-}*/
-
 
 std::set<int> DFAConstructor::getUnion(std::set<int> &s, char a) {
     std::set<int> uni;
@@ -136,7 +127,7 @@ void DFAMinimization::minimization() {
         std::cout << "}" << std::endl;
     }
 
-    grapGenerate(newTableDFA, newAcceptState , "MinDFA.dot" );
+    grapGenerate(newTableDFA, newAcceptState , "MinDFA.dot", getNewStart());
 
 }
 
@@ -169,12 +160,15 @@ int DFAMinimization::getGroupIndex(int pos, char a) {
 }
 
 
-void grapGenerate(const std::map<std::pair<int, char>, int> &transition, const std::set<int> & acceptState,const std::string &outS) {
+void grapGenerate(const std::map<std::pair<int, char>, int> &transition, const std::set<int> & acceptState,const std::string &outS, int sst) {
     std::ofstream ss(outS);
 
     ss << "digraph automat {\n";
     ss << "    rankdir=LR;\n";
     ss << "    size=\"8,5\";\n";
+
+    ss << "    node [shape = square];\n";\
+    ss << "    " << sst << ";\n";
 
     if (!acceptState.empty()) {
         ss << "    node [shape = doublecircle];\n";
