@@ -19,7 +19,7 @@ class DoubleStack {
     //конструкт
     DoubleStack() : counterPos(1) {};
     //парс в дерево сорт стайстион
-    void pars( std::string &input);
+    void pars( std::string &input, bool isInv = false);
 
 
     //узло-создатели 3000

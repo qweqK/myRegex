@@ -78,11 +78,11 @@ class DFAMinimization {
     std::map<std::pair<int, char>, int> newTableDFA;
     std::set<int> newAcceptState;
     std::set<int> newAllStates;
-    int startState = 0;
-
+    int startState;
+    int trap=-1;
 
     public:
-    DFAMinimization(std::set<int> &&AC, std::set<int> && AS,  std::map<std::pair<int, char>, int> &&transition, std::set<char> alphabe) : AcceptState(std::move(AC)), AllStates(std::move(AS)), tableDFA(std::move(transition)), alphabet(std::move(alphabe)) {}
+    DFAMinimization(std::set<int> &&AC, std::set<int> && AS,  std::map<std::pair<int, char>, int> &&transition, std::set<char> alphabe, int startState = 0 ) : AcceptState(std::move(AC)), AllStates(std::move(AS)), tableDFA(std::move(transition)), alphabet(std::move(alphabe)), startState(startState) {}
     void minimization();
     void divisionGroup(std::set<int> &G);
     int getGroupIndex(int pos, char a);
@@ -90,7 +90,7 @@ class DFAMinimization {
     std::set<int> &&getAcceptState() { return std::move(newAcceptState); }
     std::map<std::pair<int, char>, int> &&getTable() { return std::move(newTableDFA);}
     std::set<char> &&getAlphabet() { return std::move(alphabet);}
-
+    int getTrap() {return trap;}
 
 
 

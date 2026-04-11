@@ -9,13 +9,9 @@ void DFAConstructor::constructTree(std::string &str) {
 
 
 void DFAConstructor::buildDFA(std::string str) {
-   std::string str2 = "(" + str + ")";
-    str2.append(".#");
-    d->pars(str2);
+    d->pars(str);
     int dontMarkIndex=0;
-
     Dstates.push_back(d->t.root->_firstpos);
-   // NormalStates.push_back(buildNormalState());
     AllStates.insert(dontMarkIndex);
     fpTS[d->t.root->_firstpos] = 0;
     if (d->t.root.get()->_firstpos.contains(d->counterPos-1)) acceptState.insert(fpTS[d->t.root.get()->_firstpos]);
@@ -27,12 +23,11 @@ void DFAConstructor::buildDFA(std::string str) {
             std::set<int>uni = getUnion(set, a);
             if (fpTS.find(uni) == fpTS.end()) {
                 Dstates.push_back(uni);
-                //NormalStates.push_back(buildNormalState());
                 fpTS[uni] = Dstates.size() - 1;
                 if (uni.contains(d->counterPos-1)) acceptState.insert(fpTS[uni]);
                 AllStates.insert(fpTS[uni]);
             }
-            tableDFA[std::pair<int, char>{fpTS[set], a}] = fpTS[uni];
+            tableDFA[{fpTS[set], a}] = fpTS[uni];
         }
     }
 
@@ -75,11 +70,16 @@ void DFAConstructor::prinStates() {
 
 
 void DFAMinimization::minimization() {
+    if (AllStates.size() == 1) {
+        newAcceptState.insert(0);
+        startState =0;
+
+    }
     std::set<int> notAcept;
     std::set_difference(AllStates.begin(), AllStates.end(), AcceptState.begin(), AcceptState.end(), std::inserter(notAcept, notAcept.end()));
     partition.push_back(AcceptState);
     partition.push_back(notAcept);
-    size_t lastSize=partition.size();
+
      while (true) {
          for (auto & p : partition) {
             divisionGroup(p);
@@ -110,22 +110,29 @@ void DFAMinimization::minimization() {
         }
     }
 
-
-
-    for (auto & s :  newTableDFA) {
-        std::cout << s.first.first << ": " << s.first.second << "-> "<< s.second;
-        if (newAcceptState.contains(s.first.first)) {std::cout << " true"<< std::endl;}
-        else {std::cout << " false"<<std::endl;}
+    for (auto &s : newTableDFA) {
+        bool da=true;
+        for (auto a: alphabet) {
+            if (newTableDFA[{s.first.first, a}] != s.first.first) {da = false; break;}
+        }
+        if (da && !newAcceptState.contains(s.first.first)) {trap = s.first.first; break;}
     }
 
 
+    // for (auto & s :  newTableDFA) {
+    //     std::cout << s.first.first << ": " << s.first.second << "-> "<< s.second;
+    //     if (newAcceptState.contains(s.first.first)) {std::cout << " true"<< std::endl;}
+    //     else {std::cout << " false"<<std::endl;}
+    // }
 
 
-    for (int i = 0; i < newPartitions.size(); i++) {
-        std::cout << i << " {";
-        for (auto g: partition[i]) std::cout << g << ",";
-        std::cout << "}" << std::endl;
-    }
+
+
+    // for (int i = 0; i < newPartitions.size(); i++) {
+    //     std::cout << i << " {";
+    //     for (auto g: partition[i]) std::cout << g << ",";
+    //     std::cout << "}" << std::endl;
+    // }
 
     grapGenerate(newTableDFA, newAcceptState , "MinDFA.dot", getNewStart());
 
@@ -139,6 +146,8 @@ void DFAMinimization::divisionGroup(std::set<int> &G) {
             posToGroup[p].push_back(getGroupIndex(p, a));
         }
     }
+
+
 
     for (auto &p: posToGroup) {
         f[p.second].insert(p.first);
@@ -166,8 +175,10 @@ void grapGenerate(const std::map<std::pair<int, char>, int> &transition, const s
     ss << "digraph automat {\n";
     ss << "    rankdir=LR;\n";
     ss << "    size=\"8,5\";\n";
-
-    ss << "    node [shape = square];\n";\
+    if (!acceptState.contains(sst)) {
+        ss << "    node [shape = square];\n";
+    }
+    else ss << "    node [shape = triangle];\n";
     ss << "    " << sst << ";\n";
 
     if (!acceptState.empty()) {

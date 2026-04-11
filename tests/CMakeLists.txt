@@ -1,4 +1,4 @@
-find_package(Catch2 3 REQUIRED)
+find_package(Catch2 2.13.8 REQUIRED)
 
 add_executable(tests test.cpp)
 add_compile_options(--coverage)

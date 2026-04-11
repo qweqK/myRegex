@@ -13,8 +13,10 @@ class DFA {
     std::set<int> allState;
     std::map<std::tuple<int, int, int>, std::string> kPathsCalc;
     std::unique_ptr<DFA> lookAheadDfa;
+    bool reachable;
+    int trap;
     public:
-    DFA(std::map<std::pair<int, char>,int> &&transitionMap, std::set<int> &&acceptState, int startState, std::set<char> && alphabett, std::unique_ptr<DFA> lookDFA=nullptr) : transitionMap(transitionMap), acceptState(acceptState), startState(startState), alphabet(alphabett), lookAheadDfa(std::move(lookDFA)) {}
+    DFA(std::map<std::pair<int, char>,int> &&transitionMap, std::set<int> &&acceptState, int startState, std::set<char> && alphabett, int t, std::unique_ptr<DFA> lookDFA=nullptr, bool r=true) : transitionMap(transitionMap), acceptState(acceptState), startState(startState), alphabet(alphabett),trap(t),lookAheadDfa(std::move(lookDFA)), reachable(r) {}
     bool match(const std::string &str);
     std::string kPath();
     std::string recursiveStep(int i, int j, int k);
@@ -27,6 +29,15 @@ class DFA {
     bool DFS(int i,std::set<int> &visited);
     std::string getInvers(std::string str);
     std::string revRec(std::string);
+    void setReachable();
+    void deleteUnreachableStates();
+
+    int getTrap() {return trap;}
+
+    void DFS2(int i,std::set<int> &visited);
+
+
+    bool getReachable() {return reachable;}
 
 };
 

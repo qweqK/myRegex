@@ -115,13 +115,19 @@ void DoubleStack::makeStarNode() {
 }
 
 
-void DoubleStack::pars(std::string &input) {
-
+void DoubleStack::pars(std::string &input, bool isInv) {
+    if (input.empty()) {
+        makeAnode('#');
+        t.root = std::move(nodeStack.top());
+        alphabet.erase('#');
+        return;
+    }
     std::string newStr;
+    if (!isInv) newStr.push_back('(');
     for (auto c = input.begin(); c != input.end(); c++) {
         newStr.push_back(*c);
         //std::cout << *c << std::endl;
-        if ( (isOperand(*c) || *c == ')' || *c == ']' || *c == '}' || *c=='*' || *c == '+'|| *c == '[' || *c == '$') && std::next(c) != input.end() && (isOperand(*std::next(c)) || *std::next(c) == '$' || *std::next(c)== '(' || *std::next(c) == '[' || *std::next(c) == '{' )) {
+        if ( (isOperand(*c) || *c == ')' || *c == ']' || *c == '}' || *c=='*' || *c == '+'|| *c == '[' || *c == '$') && std::next(c) != input.end() && (isOperand(*std::next(c)) || *std::next(c) == '$' || *std::next(c)== '(' || *std::next(c) == '%' ||*std::next(c) == '[' || *std::next(c) == '{')) {
             if (*c == '[' || *std::next(c) == '[') {
                 if (*c != '[') newStr.push_back('.');
                 c++;
@@ -138,18 +144,21 @@ void DoubleStack::pars(std::string &input) {
                 continue;
             }
 
+
+            //else if (*std::next(c) == '%')
+
             newStr.push_back('.');
 
         }
-        else if (*c == '%' && std::next(c) != input.end()) {
+        else if (*c == '%'  && std::next(c) != input.end()) {
+            std::cout << *c << std::endl;
             c++;
             newStr.push_back(*c);
-            if (std::next(c)!= input.end() && (isOperand(*std::next(c)) || *std::next(c)== '(' || *std::next(c) == '[' || *std::next(c) == '{' )) newStr.push_back('.');
+            if (std::next(c)!= input.end() && ( *std::next(c)!= ')' || *std::next(c) == ']' || *std::next(c) == '}' )) newStr.push_back('.');
         }
 
     }
-
-
+    if (!isInv) newStr.append(").#");
     std::cout << newStr << std::endl;
     for (auto c = newStr.begin(); c != newStr.end(); c++) {
         if(isOperand(*c)) {
@@ -270,7 +279,7 @@ void DoubleStack::makeRepeatDiap(std::string &str) {
             makeConNode();
         }
         else if (!sn2.empty()) {
-            if (n1>=n2) throw std::invalid_argument("n1 >= n2 {}");
+            if (n1>n2) throw std::invalid_argument("n1 >n2 {}");
             bool firstCreate = false;
 
             for (int i = n1; i < n2+1; i++) {

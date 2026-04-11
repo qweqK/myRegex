@@ -16,11 +16,16 @@ bool DFA::match(const std::string &str) {
         return acceptState.contains(currentState);
     }
     else {
+
         int currentState=startState;
         for (int i=0; i<str.length(); i++) {
             if (alphabet.contains(str[i])) currentState = transitionMap[{currentState, str[i]}];
             else {return false;}
+            if (acceptState.contains(currentState)) {
+                if (lookAheadDfa->match(str.substr(i+1, str.size()-i))) return true;
+            }
         }
+        return false;
     }
 
 }
@@ -28,6 +33,7 @@ bool DFA::match(const std::string &str) {
 
 std::string DFA::kPath()  {
    // if (!lookAheadDfa) throw std::logic_error("DFA with lookahead = bad DFA");
+    //if (!reachable) throw std::logic_error("asasfreachable");
     std::vector<std::string> resM;
     resM.reserve(acceptState.size());
     std::string res;
@@ -37,7 +43,6 @@ std::string DFA::kPath()  {
     }
 
     for (auto a : acceptState) {
-        std::cout << "popa" <<std::endl;
         resM.push_back(recursiveStep(startState+1, a+1, alllState.size()));
     }
     for (auto &s: resM) {
@@ -133,3 +138,38 @@ bool DFA::DFS(int i, std::set<int> &visited) {
     return false;
 }
 
+
+void DFA::setReachable() {
+    reachable = isReachable();
+}
+
+
+void DFA::deleteUnreachableStates() {
+    std::set<int> visited;
+    DFS2(startState, visited);
+    for (auto it = transitionMap.begin(); it != transitionMap.end();) {
+        if (!visited.contains(it->first.first) || !visited.contains(it->second)) {
+            it= transitionMap.erase(it);
+        }
+        else {it++;}
+    }
+    for (auto it = acceptState.begin(); it != acceptState.end();) {
+        if (!visited.contains(*it)) {
+            it = acceptState.erase(it);
+        }
+        else {it++;}
+    }
+}
+
+
+void DFA::DFS2(int i, std::set<int> &visited) {
+    visited.insert(i);
+    for (auto a : alphabet) {
+        if (transitionMap.contains({i,a})) {
+            int next = transitionMap[{i,a}];
+            if (!visited.contains(next)) {
+                 (DFS2(next, visited));
+            }
+        }
+    }
+}

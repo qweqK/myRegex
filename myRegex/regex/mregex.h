@@ -14,33 +14,21 @@ class mregex {
         DFAConstructor dc1(std::make_unique<DoubleStack>());
         dc1.buildDFA(strs.first);
         saveGraph(dc1.d->t.root.get(), "tree.dot");
-        // dc1.d->traversal(dc1.d->t.root);
-        // dc1.d->printFollow();
-        // dc1.d->printAlphabet();
-        // dc1.d->printAlphabetMap();
-        // saveGraph(dc1.d->t.root.get(), "tree1.dot");
-        // dc1.printDFA();
         std::cout << dc1.d->counterPos << std::endl;
-        dc1.prinStates();
+       //dc1.prinStates();
         DFAMinimization m(dc1.getAcceptState(), dc1.getAllStates(), dc1.getTable(), dc1.d->getAlphabet());
         m.minimization();
         if (isLookahead) {
             DFAConstructor dc2(std::make_unique<DoubleStack>());
             dc2.buildDFA(strs.second);
-            // dc2.d->traversal(dc2.d->t.root);
-            // dc2.d->printFollow();
-            // dc2.d->printAlphabet();
-            // dc2.d->printAlphabetMap();
-            // saveGraph(dc2.d->t.root.get(), "tree2.dot");
-            // dc2.printDFA();
             std::cout << dc2.d->counterPos << std::endl;
-            dc2.prinStates();
+            //dc2.prinStates();
             DFAMinimization m2(dc2.getAcceptState(), dc2.getAllStates(), dc2.getTable(), dc2.d->getAlphabet());
             m2.minimization();
-            dLookahead= std::make_unique<DFA>(m2.getTable(), m2.getAcceptState(), m2.getNewStart(), m2.getAlphabet());
+            dLookahead= std::make_unique<DFA>(m2.getTable(), m2.getAcceptState(), m2.getNewStart(), m2.getAlphabet(), m2.getTrap());
 
         }
-        return std::make_unique<DFA>(m.getTable(), m.getAcceptState(), m.getNewStart(), m.getAlphabet(), std::move(dLookahead));
+        return std::make_unique<DFA>(m.getTable(), m.getAcceptState(), m.getNewStart(), m.getAlphabet(),m.getTrap(), std::move(dLookahead));
 
     }
 public:
@@ -61,4 +49,7 @@ public:
     void recursiveInvTravers(std::unique_ptr<Node> &n);
     std::string recursiveTraverseToStr(std::unique_ptr<Node> &n);
     std::string invers(std::string str);
+    std::string invers();
+
+    void printTrap() {std::cout << dfa->getTrap() << std::endl;}
 };

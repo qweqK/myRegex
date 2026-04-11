@@ -24,14 +24,15 @@
 class MultiDFA {
     std::map<std::pair<int, char>, int> mTransitions;
     std::map<std::pair<int, int>, int> mAllState;
-
+    std::set<char> alphabet;
     int mStart;
 
 public:
-    MultiDFA(std::map<std::pair<int, char>, int> &mTransitions, std::map<std::pair<int, int>, int> &mAllT, int start) :
-    mTransitions(std::move(mTransitions)), mAllState(std::move(mAllT)), mStart(start){}
+    MultiDFA(std::map<std::pair<int, char>, int> &mTransitions, std::map<std::pair<int, int>, int> &mAllT, int start, std::set<char> &alphabet) :
+    mTransitions(std::move(mTransitions)), mAllState(std::move(mAllT)), mStart(start), alphabet(std::move(alphabet)){}
 
     std::map<std::pair<int, char>, int> &getMTM() {return mTransitions;}
     std::map<std::pair<int, int>, int> &getMAllState() {return mAllState;}
     int getMStart() {return mStart;}
+    std::set<char> &getAlphabet() {return alphabet;}
 };
