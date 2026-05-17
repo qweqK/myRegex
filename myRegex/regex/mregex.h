@@ -3,10 +3,13 @@
 #include "../DFA/DFAconstruct.h"
 #include  "../DFA/MultiDFA.h"
 #include  "../tree/visualTree.h"
+#include  "../NFA/NFA.h"
+#include "../NFA/constructorNFA.h"
 
 class mregex {
     bool isLookahead = false;
     std::unique_ptr<DFA> dfa;
+    std::unique_ptr<NFA> nfa;
     std::unique_ptr<DFA> DFABuilder(std::string re) {
         std::unique_ptr<DFA> dLookahead = nullptr;
         std::pair<std::string, std::string> strs= checkStr(re);
@@ -31,12 +34,17 @@ class mregex {
         return std::make_unique<DFA>(m.getTable(), m.getAcceptState(), m.getNewStart(), m.getAlphabet(),m.getTrap(), std::move(dLookahead));
 
     }
+    std::unique_ptr<NFA> NFABuilder(std::string re) {
+        std::pair<std::string, std::string> strs= checkStr(re);
+        ConstructorNFA nb;
+        return nb.createNFA(re);
+    }
 public:
     std::pair<std::string, std::string> checkStr(std::string &str);
     mregex(std::unique_ptr<DFA> dfa) : dfa(std::move(dfa))  {};
-    mregex(std::string re) : dfa(std::move(DFABuilder(re))) {}
-    void compile(std::string re){ dfa = std::move(DFABuilder(re));}
-    bool match(std::string re) {return dfa->match(re);}
+    mregex(const std::string &re) : dfa(std::move(DFABuilder(re))), nfa(std::move(NFABuilder(re))) {}
+    void compile(const std::string &re){ dfa = std::move(DFABuilder(re)), nfa  = std::move(NFABuilder(re)); }
+    bool match(const std::string & re) {return dfa->match(re);}
     std::string kPath() {return dfa->kPath();}
     void print() {dfa->printDFA();}
     MultiDFA getMultyAutomat(DFA *other);
@@ -44,7 +52,7 @@ public:
     bool isEqual(mregex &secRegex);
     mregex diffAutomat(mregex &secRegex);
     void draw(std::string str);
-
+    void drawNFA(const std::string &file) {nfa->graphGenerate(file);}
 
     void recursiveInvTravers(std::unique_ptr<Node> &n);
     std::string recursiveTraverseToStr(std::unique_ptr<Node> &n);

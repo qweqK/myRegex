@@ -33,7 +33,7 @@ bool DFA::match(const std::string &str) {
 
 std::string DFA::kPath()  {
    // if (!lookAheadDfa) throw std::logic_error("DFA with lookahead = bad DFA");
-    //if (!reachable) throw std::logic_error("asasfreachable");
+    if (!reachable) throw std::logic_error("empty language");
     std::vector<std::string> resM;
     resM.reserve(acceptState.size());
     std::string res;
