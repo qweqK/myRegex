@@ -9,22 +9,47 @@
 
 using TM = std::multimap<std::pair<int, char>, int>;
 
-class msmatch {
-    std::vector<std::string> groups;
-    public:
-    int size = 0;
-    std::string operator[] (int i) {
-        if (i<0 || i>size) return "" ;
-            return groups[i];
-    }
-};
 
 class indexesGroup {
   public:
-    int firstIdx;
-    int lastIdx;
-    bool isComplete;
-    indexesGroup(int f, int l) : firstIdx(f), lastIdx(l), isComplete(false) {};
+    int firstIdx=-1;
+    int lastIdx=-1;
+    bool isComplete= false;
+    indexesGroup(int f, int l) : firstIdx(f), lastIdx(l) {};
+    indexesGroup() : firstIdx(-1), lastIdx(-1) {};
+};
+
+
+class msmatch {
+    std::vector<std::string> groups;
+public:
+    int size = 0;
+    std::string operator[] (int i) {
+        if (i<0 || i>size) throw std::out_of_range("group zhok ili ne v tu vetke alternative") ;
+        return groups[i];
+    }
+    void fill(std::string &t, std::map<int, indexesGroup> &gm) {
+        for (auto i: gm) {
+            auto f = i.second;
+            if (f.isComplete == true) {
+                std::string res = t.substr(f.firstIdx, f.lastIdx - f.firstIdx);
+                groups.push_back(res);
+            }
+            else {
+                groups.emplace_back("");
+            }
+        }
+        size = gm.size()-1;
+    }
+};
+
+class helpContainer {
+public:
+    int state;
+    int strIndx;
+    std::map<int, indexesGroup> groupsLoc;
+    helpContainer(int s, int si, std::map<int, indexesGroup> g ) : state(s), strIndx(si), groupsLoc(std::move(g)) {};
+
 };
 
 class NFA {
@@ -33,28 +58,14 @@ class NFA {
     int startState;
     int endStates;
     std::set<int> allStates;
-    std::set<int> openGroupsState;
-    std::set<int> closeGroupsState;
     std::set<char> alphabet;
-    std::set<int> curStates;
+    std::map<int, int> openGroupsState;
+    std::map<int, int> closeGroupsState;
     std::set<int> orStates;
 
 
-    std::map<int, indexesGroup> gI;
-    std::set<int> nextStates;
-    std::set<int> activeGroups;
-    std::stack<int> alternativeChoose;
-    void makeEpsAction(int &i, int c);
-
-    void makeEpsEndAction(int c);
-    void makeSymbAction(int i, int c);
-
-
-    NFA(int startState, int endStates, std::set<int> allStates, TM transitionMap, std::set<int> OGS, std::set<int> CGS, std::set<char> a, std::set<int> ors) : startState(startState), endStates(endStates), allStates(std::move(allStates)), transitionMap(std::move(transitionMap)), openGroupsState(std::move(OGS)), closeGroupsState(std::move(CGS)), alphabet(std::move(a)), orStates(std::move(ors)){}
+    NFA(int startState, int endStates, std::set<int> allStates, TM transitionMap, std::map<int,int> OGS, std::map<int,int> CGS, std::set<char> a, std::set<int> ors) : startState(startState), endStates(endStates), allStates(std::move(allStates)), transitionMap(std::move(transitionMap)), openGroupsState(std::move(OGS)), closeGroupsState(std::move(CGS)), alphabet(std::move(a)), orStates(std::move(ors)){}
     bool match(std::string t, msmatch &m);
-    bool reMatch(std::string t, msmatch &m);
-    
-    std::set<int> getNextState(std::set<int> &curSet);
     void graphGenerate(const std::string &outS);
 
 };

@@ -24,7 +24,7 @@ std::unique_ptr<NFA>ConstructorNFA::recursiveMak(std::unique_ptr<NNode> &node) {
             loc.insert({{start, node->_data}, end});
             std::set<int> allStatesloc ={start, end};
             std::set<int> locOr;
-            return std::make_unique<NFA>(start, end, allStatesloc, loc, std::set<int>(), std::set<int>(), parser->alphabet, locOr);
+            return std::make_unique<NFA>(start, end, allStatesloc, loc, std::map<int,int>(), std::map<int,int>(), parser->alphabet, locOr);
         }break;
         case NNType::Eps: {
             int start  = vertexCounter++;
@@ -33,7 +33,7 @@ std::unique_ptr<NFA>ConstructorNFA::recursiveMak(std::unique_ptr<NNode> &node) {
             std::set<int> allStatesloc ={start, end};
             loc.insert({{start, '$'}, end});
             std::set<int> locOr;
-            return std::make_unique<NFA>(start, end, allStatesloc, loc, std::set<int>(), std::set<int>(), parser->alphabet, locOr);
+            return std::make_unique<NFA>(start, end, allStatesloc, loc, std::map<int,int>(), std::map<int,int>(), parser->alphabet, locOr);
         }break;
         case NNType::OR: {
             if (nfaRight == nullptr || nfaRight == nullptr) throw std::invalid_argument("NFA is null in OR proc");
@@ -50,9 +50,9 @@ std::unique_ptr<NFA>ConstructorNFA::recursiveMak(std::unique_ptr<NNode> &node) {
             allStatesloc.insert(nfaLeft->allStates.begin(), nfaLeft->allStates.end());
             allStatesloc.insert(start);
             allStatesloc.insert(end);
-            std::set<int> locOpenGS(nfaLeft->openGroupsState.begin(), nfaLeft->openGroupsState.end());
+            std::map<int, int> locOpenGS(nfaLeft->openGroupsState.begin(), nfaLeft->openGroupsState.end());
             locOpenGS.insert(nfaRight->openGroupsState.begin(), nfaRight->openGroupsState.end());
-            std::set<int> locCloseGS(nfaLeft->closeGroupsState.begin(), nfaLeft->closeGroupsState.end());
+            std::map<int, int> locCloseGS(nfaLeft->closeGroupsState.begin(), nfaLeft->closeGroupsState.end());
             locCloseGS.insert(nfaRight->closeGroupsState.begin(),nfaRight->closeGroupsState.end());
             std::set<int> locOr(nfaLeft->orStates.begin(), nfaLeft->orStates.end());
             locOr.insert(nfaRight->orStates.begin(), nfaRight->orStates.end());
@@ -69,9 +69,9 @@ std::unique_ptr<NFA>ConstructorNFA::recursiveMak(std::unique_ptr<NNode> &node) {
             loc.insert({{nfaLeft->endStates, '$'}, nfaRight->startState});
             std::set<int> allStatesloc (nfaRight->allStates.begin(), nfaRight->allStates.end());
             allStatesloc.insert(nfaLeft->allStates.begin(), nfaLeft->allStates.end());
-            std::set<int> locOpenGS(nfaLeft->openGroupsState.begin(), nfaLeft->openGroupsState.end());
+            std::map<int, int> locOpenGS(nfaLeft->openGroupsState.begin(), nfaLeft->openGroupsState.end());
             locOpenGS.insert(nfaRight->openGroupsState.begin(), nfaRight->openGroupsState.end());
-            std::set<int> locCloseGS(nfaLeft->closeGroupsState.begin(), nfaLeft->closeGroupsState.end());
+           std::map<int, int> locCloseGS(nfaLeft->closeGroupsState.begin(), nfaLeft->closeGroupsState.end());
             locCloseGS.insert(nfaRight->closeGroupsState.begin(),nfaRight->closeGroupsState.end());
             std::set<int> locOr(nfaLeft->orStates.begin(), nfaLeft->orStates.end());
             locOr.insert(nfaRight->orStates.begin(), nfaRight->orStates.end());
@@ -85,14 +85,14 @@ std::unique_ptr<NFA>ConstructorNFA::recursiveMak(std::unique_ptr<NNode> &node) {
             int end    = vertexCounter++;
             loc.insert(nfaLeft->transitionMap.begin(), nfaLeft->transitionMap.end());
             loc.insert({{nfaLeft->endStates, '$'}, nfaLeft->startState});
-            loc.insert({{start, '$'}, end});
             loc.insert({{start, '$'}, nfaLeft->startState});
+            loc.insert({{start, '$'}, end});
             loc.insert({{nfaLeft->endStates, '$'}, end});
             std::set<int> allStatesloc (nfaLeft->allStates.begin(), nfaLeft->allStates.end());
             allStatesloc.insert(start);
             allStatesloc.insert(end);
-            std::set<int> locOGS(nfaLeft->openGroupsState.begin(), nfaLeft->openGroupsState.end());
-            std::set<int> locCGS(nfaLeft->closeGroupsState.begin(), nfaLeft->closeGroupsState.end());
+            std::map<int, int> locOGS(nfaLeft->openGroupsState.begin(), nfaLeft->openGroupsState.end());
+            std::map<int, int> locCGS(nfaLeft->closeGroupsState.begin(), nfaLeft->closeGroupsState.end());
             std::set<int> locOr(nfaLeft->orStates.begin(), nfaLeft->orStates.end());
             return std::make_unique<NFA>(start, end,allStatesloc, loc,locOGS, locCGS, parser->alphabet, locOr);
         }break;
@@ -108,8 +108,8 @@ std::unique_ptr<NFA>ConstructorNFA::recursiveMak(std::unique_ptr<NNode> &node) {
             std::set<int> allStatesloc (nfaLeft->allStates.begin(), nfaLeft->allStates.end());
             allStatesloc.insert(start);
             allStatesloc.insert(end);
-            std::set<int> locOGS(nfaLeft->openGroupsState.begin(), nfaLeft->openGroupsState.end());
-            std::set<int> locCGS(nfaLeft->closeGroupsState.begin(), nfaLeft->closeGroupsState.end());
+            std::map<int, int> locOGS(nfaLeft->openGroupsState.begin(), nfaLeft->openGroupsState.end());
+            std::map<int, int> locCGS(nfaLeft->closeGroupsState.begin(), nfaLeft->closeGroupsState.end());
             std::set<int> locOr(nfaLeft->orStates.begin(), nfaLeft->orStates.end());
             return std::make_unique<NFA>(start, end,allStatesloc, loc,locOGS, locCGS, parser->alphabet, locOr);
         }break;
@@ -123,10 +123,10 @@ std::unique_ptr<NFA>ConstructorNFA::recursiveMak(std::unique_ptr<NNode> &node) {
             loc.insert({{start, '$'}, nfaLeft->startState});
             loc.insert({{nfaLeft->endStates, '$'}, end});
             std::set<int> allStatesloc (nfaLeft->allStates.begin(), nfaLeft->allStates.end());
-            std::set<int> locOGS(nfaLeft->openGroupsState.begin(), nfaLeft->openGroupsState.end());
-            std::set<int> locCGS(nfaLeft->closeGroupsState.begin(), nfaLeft->closeGroupsState.end());
-            locOGS.insert(start);
-            locCGS.insert(end);
+            std::map<int, int> locOGS(nfaLeft->openGroupsState.begin(), nfaLeft->openGroupsState.end());
+            std::map<int, int> locCGS(nfaLeft->closeGroupsState.begin(), nfaLeft->closeGroupsState.end());
+            locOGS.insert({start, node->groupNumb});
+            locCGS.insert({end, node->groupNumb});
             allStatesloc.insert(start);
             allStatesloc.insert(end);
             std::set<int> locOr(nfaLeft->orStates.begin(), nfaLeft->orStates.end());

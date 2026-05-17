@@ -29,6 +29,8 @@ class parsInNFA {
     std::stack<std::unique_ptr<NNode>> nodeStack;
     std::set<char> alphabet;
     int capNumb = 0;
+    std::stack<int> groupIdx;
+
     int getPrior(char c);
     void makeOper(char c);
     void makeAnode(char c);
@@ -39,6 +41,7 @@ class parsInNFA {
     void makeEpsilonNode();
     void makeCBNode();
     void pars(std::string &input);
+
 
     void makeRepeatDiap(std::string &str);
     void makeSymbDiap(std::string &str);

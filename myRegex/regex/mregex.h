@@ -45,6 +45,7 @@ public:
     mregex(const std::string &re) : dfa(std::move(DFABuilder(re))), nfa(std::move(NFABuilder(re))) {}
     void compile(const std::string &re){ dfa = std::move(DFABuilder(re)), nfa  = std::move(NFABuilder(re)); }
     bool match(const std::string & re) {return dfa->match(re);}
+    bool match(const std::string & re, msmatch & m) {return nfa->match(re, m);}
     std::string kPath() {return dfa->kPath();}
     void print() {dfa->printDFA();}
     MultiDFA getMultyAutomat(DFA *other);

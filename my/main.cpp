@@ -13,11 +13,15 @@ int main() {
     // bool f1 = q.match("asv");
     //  if (f1 == true) std::cout << "true" << std::endl;
 
-
-   mregex m("[a-f]*|(b)b*");
+    msmatch msm;
+   mregex m("(a+)(a+)b|(a*)");
     m.drawNFA("nfa1.dot");
-
-
+    bool res = m.match("aab",msm);
+    if (res) {
+        std::cout << "true"<< std::endl;
+        std::cout << msm[0] << '\n' <<msm[1] << '\n' <<msm[2] <<std::endl;
+    }
+    else std::cout << "false"<< std::endl;
 }
 
 

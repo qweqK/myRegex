@@ -84,7 +84,9 @@ void parsInNFA::pars(std::string &input) {
         }
         else if (*c== '(') {
             stackOptions.push('(');
+            groupIdx.push(capNumb);
             capNumb++;
+
         }
         else if (*c== ')') {
             while (!stackOptions.empty() && stackOptions.top() != '(') {
@@ -283,8 +285,8 @@ void parsInNFA::makeCBNode() {
     if (nodeStack.empty()) throw std::invalid_argument("oper () prob");
     std::unique_ptr<NNode> next = std::move(nodeStack.top());
     nodeStack.pop();
-    nodeStack.push(std::make_unique<NNode>(NNType::CB, '(' ,std::move(next), capNumb));
-    --capNumb;
+    nodeStack.push(std::make_unique<NNode>(NNType::CB, '(' ,std::move(next), groupIdx.top()));
+    groupIdx.pop();
 }
 
 
