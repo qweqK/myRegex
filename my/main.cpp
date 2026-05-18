@@ -1,5 +1,5 @@
 #include <iostream>
-
+#include <regex>
 #include "tree/treeContructor.h"
 #include "DFA/DFAconstruct.h"
 #include "DFA/DFA.h"
@@ -14,14 +14,14 @@ int main() {
     //  if (f1 == true) std::cout << "true" << std::endl;
 
     msmatch msm;
-   mregex m("(a+)(a+)b|(a*)");
+   mregex m("(a*a*(a*a*)\\2)\\1b\\2");
     m.drawNFA("nfa1.dot");
-    bool res = m.match("aab",msm);
-    if (res) {
-        std::cout << "true"<< std::endl;
-        std::cout << msm[0] << '\n' <<msm[1] << '\n' <<msm[2] <<std::endl;
+    bool res = m.match("aaaaba",msm);
+     if (res) {
+         std::cout << "true"<< std::endl;
+         std::cout << msm[0] << '\n' <<msm[1] << '\n' <<msm[2] << std::endl;
     }
-    else std::cout << "false"<< std::endl;
+     else std::cout << "false"<< std::endl;
 }
 
 

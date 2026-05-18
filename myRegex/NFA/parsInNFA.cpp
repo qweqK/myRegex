@@ -13,7 +13,7 @@ void parsInNFA::pars(std::string &input) {
     for (auto c = input.begin(); c != input.end(); c++) {
         newStr.push_back(*c);
         //std::cout << *c << std::endl;
-        if ( (isOperand(*c) || *c == ')' || *c == ']' || *c == '}' || *c=='*' || *c == '+'|| *c == '[' || *c == '$') && std::next(c) != input.end() && (isOperand(*std::next(c)) || *std::next(c) == '$' || *std::next(c)== '(' || *std::next(c) == '%' ||*std::next(c) == '[' || *std::next(c) == '{')) {
+        if ( (isOperand(*c) || *c == ')' || *c == ']' || *c == '}' || *c=='*' || *c == '+'|| *c == '[' || *c == '$') && std::next(c) != input.end() && (isOperand(*std::next(c)) || *std::next(c) == '$' || *std::next(c)== '(' || *std::next(c) == '%' ||*std::next(c) == '[' || *std::next(c) == '{' || *std::next(c)== '\\')) {
             if (*c == '[' || *std::next(c) == '[') {
                 if (*c != '[') newStr.push_back('.');
                 c++;
@@ -34,13 +34,20 @@ void parsInNFA::pars(std::string &input) {
             //else if (*std::next(c) == '%')
 
             newStr.push_back('.');
-
         }
         else if (*c == '%'  && std::next(c) != input.end()) {
             std::cout << *c << std::endl;
             c++;
             newStr.push_back(*c);
             if (std::next(c)!= input.end() && ( *std::next(c)!= ')' || *std::next(c) == ']' || *std::next(c) == '}' )) newStr.push_back('.');
+        }
+        else if (*c == '\\'  && std::next(c) != input.end()) {
+            std::cout << *c << std::endl;
+            c++;
+            newStr.push_back(*c);
+            std::cout << newStr << std::endl;
+            if (std::next(c)!= input.end() && ( isOperand(*std::next(c)) )) newStr.push_back('.');
+            std::cout << newStr << std::endl;
         }
 
     }
@@ -50,7 +57,9 @@ void parsInNFA::pars(std::string &input) {
         if(isOperand(*c)) {
             makeAnode(*c);
         }
+
         else if (*c == '%') makeAnode(*(++c));
+        else if (*c == '\\') {std::string curS({*(++c)}); makeNGNode(std::stoi(curS));}
         else if (*c == '[') {
             c++;
             std::string tmp;
@@ -192,7 +201,7 @@ void parsInNFA::makeSymbDiap(std::string &str) {
 
 
 bool parsInNFA::isOperand(char c) {
-    if (isOperator(c) || c == '(' || c==')' || c== '%'|| c== '[' || c== ']' || c=='{'|| c=='}' || c == '$') return false;
+    if (isOperator(c) || c == '(' || c==')' || c== '%'|| c== '[' || c== ']' || c=='{'|| c=='}' || c == '$' || c == '\\') return false;
     else return true;
 }
 
@@ -215,10 +224,10 @@ void parsInNFA::traversClone(const std::unique_ptr<NNode>& node) {
     if (!node) return;
     traversClone(node->_left);
     traversClone(node->_right);
-    chooseMakeNode(node->_data, node->type);
+    chooseMakeNode(node->_data, node->type,  node->groupNumb);
 }
 
-void parsInNFA::chooseMakeNode(char c, NNType t) {
+void parsInNFA::chooseMakeNode(char c, NNType t, int g) {
     switch (t) {
         case NNType::A : {makeAnode(c);} break;
         case NNType::Eps : {makeEpsilonNode();} break;
@@ -226,6 +235,8 @@ void parsInNFA::chooseMakeNode(char c, NNType t) {
         case NNType::CON : {makeConNode();} break;
         case NNType::PLUS : {makePlusNode();} break;
         case NNType::STAR : {makeStarNode();} break;
+        case NNType::CB : {makeEmptyNode();} break;
+        case NNType::NG : {makeNGNode(g);}
         default: throw std::invalid_argument("problemas");
 
     }
@@ -248,6 +259,11 @@ void parsInNFA::makeOrNode() {
     nodeStack.pop();
     nodeStack.push(std::make_unique<NNode>(NNType::OR, '|' ,std::move(left), std::move(right)));
 
+}
+
+void parsInNFA::makeNGNode(int  c) {
+    if (!alreadyExistsGroup.contains(c)) throw std::invalid_argument("group " + std::to_string(c) + " not Exist");
+    nodeStack.push(std::make_unique<NNode>(NNType::NG, '\\' , nullptr, c));
 }
 
 
@@ -286,7 +302,15 @@ void parsInNFA::makeCBNode() {
     std::unique_ptr<NNode> next = std::move(nodeStack.top());
     nodeStack.pop();
     nodeStack.push(std::make_unique<NNode>(NNType::CB, '(' ,std::move(next), groupIdx.top()));
+    alreadyExistsGroup[groupIdx.top()] = true;
     groupIdx.pop();
+}
+
+void parsInNFA::makeEmptyNode() {
+    if (nodeStack.empty()) throw std::invalid_argument("oper () prob");
+    std::unique_ptr<NNode> next = std::move(nodeStack.top());
+    nodeStack.pop();
+    nodeStack.push(std::make_unique<NNode>(NNType::EMPTY, 'e' ,std::move(next), groupIdx.top()));
 }
 
 

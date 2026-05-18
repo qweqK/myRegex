@@ -288,6 +288,54 @@ TEST_CASE("combanations") {
     }
 }
 
+TEST_CASE("capture") {
+    SECTION("easy") {
+        mregex m("(aaa)(ooo)");
+        msmatch msm;
+        REQUIRE(m.match("aaaooo", msm));
+        REQUIRE(msm[0] == "aaaooo");
+        REQUIRE(msm[1] == "aaa");
+        REQUIRE(msm[2] == "ooo");
+        REQUIRE(!m.match("aaaoooo", msm));
+    }
+    SECTION("a*a*") {
+        mregex m("(a*)(a*)");
+        msmatch msm;
+        REQUIRE(m.match("aaaaa", msm));
+        REQUIRE(msm[0] == "aaaaa");
+        REQUIRE(msm[1] == "aaaaa");
+        REQUIRE(msm[2] == "");
+    }
+    SECTION("a+a+") {
+        mregex m("(a+)(a+)");
+        msmatch msm;
+        REQUIRE(m.match("aaaaa", msm));
+        REQUIRE(msm[0] == "aaaaa");
+        REQUIRE(msm[1] == "aaaa");
+        REQUIRE(msm[2] == "a");
+    }
+    SECTION("vetvleniye") {
+        mregex m("(a*)(a*)|(a*)");
+        msmatch msm;
+        REQUIRE(m.match("aaaaa", msm));
+        REQUIRE(msm[0] == "aaaaa");
+        REQUIRE(msm[1] == "aaaaa");
+        REQUIRE(msm[2] == "");
+        REQUIRE(msm[3] == "");
+    }
+    SECTION("vetvleniye2") {
+        mregex m("(a*)(a*)|((a*)b)");
+        msmatch msm;
+        REQUIRE(m.match("aaaaab", msm));
+        REQUIRE(msm[0] == "aaaaab");
+        REQUIRE(msm[1] == "");
+        REQUIRE(msm[2] == "");
+        REQUIRE(msm[3] == "aaaaab");
+        REQUIRE(msm[4] == "aaaaa");
+    }
+
+}
+
 
 
 

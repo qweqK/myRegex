@@ -5,13 +5,30 @@
 
 bool NFA::match(std::string t, msmatch &m) {
     std::stack<helpContainer> procStack;
-    std::map<int, indexesGroup> groupMapfirst = {{0, indexesGroup(0, 0)}};
+    std::map<int, indexesGroup> groupMapfirst;
+    for (auto p : openGroupsState) {
+        groupMapfirst.emplace(p.second, indexesGroup(0, 0));
+    }
+    //std::map<int, indexesGroup> groupMapfirst = {{0, indexesGroup(0, 0)}};
     procStack.emplace(startState, 0, groupMapfirst);
     while (!procStack.empty()) {
         auto cur = procStack.top();
         procStack.pop();
-        std::cout << "index: "<<cur.strIndx << std::endl;
+        std::cout << "index: "<<cur.strIndx << "-";
         std::cout << "state: "<<cur.state << std::endl;
+        if (referenceG.contains(cur.state)) {
+            std::cout << "its ref";
+            auto bounds =  cur.groupsLoc[referenceG[cur.state]];
+            if (!bounds.isComplete) return false;
+            auto checksub = t.substr(bounds.firstIdx, bounds.lastIdx-bounds.firstIdx);
+            if (cur.strIndx + checksub.size() <= t.length()) {
+                if (t.substr(cur.strIndx, checksub.size()) != checksub) continue;
+                std::cout << "its normref" << t.substr(cur.strIndx, checksub.size()) << std::endl;
+                cur.strIndx += checksub.size();
+            }
+            else continue;
+        }
+
         if (openGroupsState.contains(cur.state)) {
             cur.groupsLoc[openGroupsState[cur.state]] = indexesGroup(cur.strIndx, -1);
         }
@@ -40,6 +57,7 @@ bool NFA::match(std::string t, msmatch &m) {
         for (; range2.first != range2.second; ++range2.first) {
             da.push_back(range2.first->second);
         }
+
         for (auto it = da.rbegin() ; it != da.rend() ; ++it) {
             procStack.emplace(*it, cur.strIndx, cur.groupsLoc);
         }
@@ -58,8 +76,10 @@ void NFA::graphGenerate(const std::string &outS) {
     TM transition = transitionMap;
     std::set<int> closeGroupsStateloc;
     std::set<int> openGroupsStateloc;
+    std::set<int> zahlStateloc;
     for (auto p : openGroupsState) {openGroupsStateloc.insert(p.first);}
     for (auto p: closeGroupsState) {closeGroupsStateloc.insert(p.first);}
+    for (auto p : referenceG) {zahlStateloc.insert(p.first);}
     std::ofstream ss(outS);
     ss << "digraph automat {\n";
     ss << "    rankdir=LR;\n";
@@ -87,6 +107,13 @@ void NFA::graphGenerate(const std::string &outS) {
     if (!closeGroupsStateloc.empty()) {
         ss << "    node [shape = egg];\n";
         for (int p : closeGroupsStateloc) {
+            ss << "    " << p << ";\n";
+            std::cout << p << std::endl;
+        }
+    }
+    if (!zahlStateloc.empty()) {
+        ss << "    node [shape = triangle];\n";
+        for (int p : zahlStateloc) {
             ss << "    " << p << ";\n";
             std::cout << p << std::endl;
         }

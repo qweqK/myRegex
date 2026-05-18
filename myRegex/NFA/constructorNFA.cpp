@@ -24,8 +24,9 @@ std::unique_ptr<NFA>ConstructorNFA::recursiveMak(std::unique_ptr<NNode> &node) {
             loc.insert({{start, node->_data}, end});
             std::set<int> allStatesloc ={start, end};
             std::set<int> locOr;
-            return std::make_unique<NFA>(start, end, allStatesloc, loc, std::map<int,int>(), std::map<int,int>(), parser->alphabet, locOr);
+            return std::make_unique<NFA>(start, end, allStatesloc, loc, std::map<int,int>(), std::map<int,int>(), parser->alphabet, locOr, std::map<int,int>());
         }break;
+
         case NNType::Eps: {
             int start  = vertexCounter++;
             int end    = vertexCounter++;
@@ -33,7 +34,7 @@ std::unique_ptr<NFA>ConstructorNFA::recursiveMak(std::unique_ptr<NNode> &node) {
             std::set<int> allStatesloc ={start, end};
             loc.insert({{start, '$'}, end});
             std::set<int> locOr;
-            return std::make_unique<NFA>(start, end, allStatesloc, loc, std::map<int,int>(), std::map<int,int>(), parser->alphabet, locOr);
+            return std::make_unique<NFA>(start, end, allStatesloc, loc, std::map<int,int>(), std::map<int,int>(), parser->alphabet, locOr, std::map<int,int>());
         }break;
         case NNType::OR: {
             if (nfaRight == nullptr || nfaRight == nullptr) throw std::invalid_argument("NFA is null in OR proc");
@@ -57,7 +58,10 @@ std::unique_ptr<NFA>ConstructorNFA::recursiveMak(std::unique_ptr<NNode> &node) {
             std::set<int> locOr(nfaLeft->orStates.begin(), nfaLeft->orStates.end());
             locOr.insert(nfaRight->orStates.begin(), nfaRight->orStates.end());
             locOr.insert(start);
-            return std::make_unique<NFA>(start, end, allStatesloc, loc, locOpenGS, locCloseGS, parser->alphabet, locOr);
+            std::map<int, int> locRG(nfaLeft->referenceG.begin(), nfaLeft->referenceG.end());
+            locRG.insert(nfaRight->referenceG.begin(), nfaRight->referenceG.end());
+
+            return std::make_unique<NFA>(start, end, allStatesloc, loc, locOpenGS, locCloseGS, parser->alphabet, locOr, locRG);
 
         }break;
 
@@ -75,7 +79,9 @@ std::unique_ptr<NFA>ConstructorNFA::recursiveMak(std::unique_ptr<NNode> &node) {
             locCloseGS.insert(nfaRight->closeGroupsState.begin(),nfaRight->closeGroupsState.end());
             std::set<int> locOr(nfaLeft->orStates.begin(), nfaLeft->orStates.end());
             locOr.insert(nfaRight->orStates.begin(), nfaRight->orStates.end());
-            return std::make_unique<NFA>(nfaLeft->startState, nfaRight->endStates, allStatesloc,loc ,locOpenGS, locCloseGS, parser->alphabet, locOr);
+            std::map<int, int> locRG(nfaLeft->referenceG.begin(), nfaLeft->referenceG.end());
+            locRG.insert(nfaRight->referenceG.begin(), nfaRight->referenceG.end());
+            return std::make_unique<NFA>(nfaLeft->startState, nfaRight->endStates, allStatesloc,loc ,locOpenGS, locCloseGS, parser->alphabet, locOr, locRG);
         }break;
 
         case NNType::STAR: {
@@ -94,7 +100,8 @@ std::unique_ptr<NFA>ConstructorNFA::recursiveMak(std::unique_ptr<NNode> &node) {
             std::map<int, int> locOGS(nfaLeft->openGroupsState.begin(), nfaLeft->openGroupsState.end());
             std::map<int, int> locCGS(nfaLeft->closeGroupsState.begin(), nfaLeft->closeGroupsState.end());
             std::set<int> locOr(nfaLeft->orStates.begin(), nfaLeft->orStates.end());
-            return std::make_unique<NFA>(start, end,allStatesloc, loc,locOGS, locCGS, parser->alphabet, locOr);
+            std::map<int, int> locRG(nfaLeft->referenceG.begin(), nfaLeft->referenceG.end());
+            return std::make_unique<NFA>(start, end,allStatesloc, loc,locOGS, locCGS, parser->alphabet, locOr, locRG);
         }break;
         case NNType::PLUS: {
             if (nfaLeft == nullptr)throw std::invalid_argument("NFA is null in + proc");
@@ -111,7 +118,8 @@ std::unique_ptr<NFA>ConstructorNFA::recursiveMak(std::unique_ptr<NNode> &node) {
             std::map<int, int> locOGS(nfaLeft->openGroupsState.begin(), nfaLeft->openGroupsState.end());
             std::map<int, int> locCGS(nfaLeft->closeGroupsState.begin(), nfaLeft->closeGroupsState.end());
             std::set<int> locOr(nfaLeft->orStates.begin(), nfaLeft->orStates.end());
-            return std::make_unique<NFA>(start, end,allStatesloc, loc,locOGS, locCGS, parser->alphabet, locOr);
+            std::map<int, int> locRG(nfaLeft->referenceG.begin(), nfaLeft->referenceG.end());
+            return std::make_unique<NFA>(start, end,allStatesloc, loc,locOGS, locCGS, parser->alphabet, locOr, locRG);
         }break;
 
         case NNType::CB: {
@@ -129,11 +137,24 @@ std::unique_ptr<NFA>ConstructorNFA::recursiveMak(std::unique_ptr<NNode> &node) {
             locCGS.insert({end, node->groupNumb});
             allStatesloc.insert(start);
             allStatesloc.insert(end);
+            std::map<int, int> locRG(nfaLeft->referenceG.begin(), nfaLeft->referenceG.end());
             std::set<int> locOr(nfaLeft->orStates.begin(), nfaLeft->orStates.end());
-            return std::make_unique<NFA>(start, end,allStatesloc, loc,locOGS, locCGS, parser->alphabet, locOr);
+            return std::make_unique<NFA>(start, end,allStatesloc, loc,locOGS, locCGS, parser->alphabet, locOr, locRG);
+        }break;
+        case NNType::EMPTY: {
+            return nfaLeft;
+        }
+        case NNType::NG : {
+            int start  = vertexCounter++;
+            int end    = start;
+            std::cout << start << std::endl;
+            std::map<int, int> locRG{{start, node->groupNumb}};
+            TM loc;
+            std::set<int> allStatesloc ={start};
+            std::set<int> locOr;
+            return std::make_unique<NFA>(start, end, allStatesloc, loc, std::map<int,int>(), std::map<int,int>(), parser->alphabet, locOr, locRG);
         }break;
             default: return nullptr;
-
     }
 
 }

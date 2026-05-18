@@ -5,7 +5,7 @@
 #include <stack>
 #include <iostream>
 
-enum class NNType { A, Eps, OR, STAR, CON, PLUS, CB};
+enum class NNType { A, Eps, OR, STAR, CON, PLUS, CB, EMPTY, NG};
 
 class NNode {
     public:
@@ -13,7 +13,6 @@ class NNode {
     std::unique_ptr<NNode> _left;
     std::unique_ptr<NNode> _right;
     char _data;
-    int counterVertex=0;
     NNode(NNType type, char data, std::unique_ptr<NNode> left = nullptr, std::unique_ptr<NNode> right = nullptr) : type(type), _left(std::move(left)), _right(std::move(right)), _data(data) {}
     NNode(NNType type, char data, std::unique_ptr<NNode> next, int gn ) : type(type), _left(std::move(next)), _right(nullptr), _data(data), groupNumb(gn) {}
     NNType getType() const { return type; }
@@ -30,6 +29,8 @@ class parsInNFA {
     std::set<char> alphabet;
     int capNumb = 0;
     std::stack<int> groupIdx;
+    std::map<int, bool> alreadyExistsGroup;
+
 
     int getPrior(char c);
     void makeOper(char c);
@@ -40,6 +41,9 @@ class parsInNFA {
     void makePlusNode();
     void makeEpsilonNode();
     void makeCBNode();
+    void makeEmptyNode();
+    void makeNGNode(int a);
+
     void pars(std::string &input);
 
 
@@ -52,7 +56,7 @@ class parsInNFA {
     bool isForCon(char c);
 
 
-    void chooseMakeNode(char, NNType nt);
+    void chooseMakeNode(char, NNType nt, int g);
     void traversClone(const std::unique_ptr<NNode>& node);
     void takeSmartCopyNode(const std::unique_ptr<NNode>& node);
 

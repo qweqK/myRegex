@@ -62,9 +62,15 @@ class NFA {
     std::map<int, int> openGroupsState;
     std::map<int, int> closeGroupsState;
     std::set<int> orStates;
+    std::map<int, int> referenceG;
 
 
-    NFA(int startState, int endStates, std::set<int> allStates, TM transitionMap, std::map<int,int> OGS, std::map<int,int> CGS, std::set<char> a, std::set<int> ors) : startState(startState), endStates(endStates), allStates(std::move(allStates)), transitionMap(std::move(transitionMap)), openGroupsState(std::move(OGS)), closeGroupsState(std::move(CGS)), alphabet(std::move(a)), orStates(std::move(ors)){}
+    NFA(int startState, int endStates, std::set<int> allStates,
+        TM transitionMap, std::map<int,int> OGS, std::map<int,int> CGS,
+        std::set<char> a, std::set<int> ors, std::map<int, int> rg) : startState(startState),
+    endStates(endStates), allStates(std::move(allStates)), transitionMap(std::move(transitionMap)),
+    openGroupsState(std::move(OGS)), closeGroupsState(std::move(CGS)), alphabet(std::move(a)),
+    orStates(std::move(ors)), referenceG(std::move(rg)){}
     bool match(std::string t, msmatch &m);
     void graphGenerate(const std::string &outS);
 
